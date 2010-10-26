@@ -11,7 +11,7 @@ WIF="wlan0"
 
 APIF="wifi0"
 
-OUT_APPS="ftp ssh telnet smtp bootps domain finger http nntp https http-alt ntp"
+OUT_APPS="ftp-data ftp ssh telnet smtp bootps domain finger http nntp https http-alt ntp cvspserver imaps"
 
 #Flush
 ${IPTABLES} -F
