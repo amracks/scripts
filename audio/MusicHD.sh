@@ -2,7 +2,18 @@
 
 HD=/dev/sdc1
 MOUNTPOINT=/mnt/floppy
+AUTOMNTPT=/meda/usb1
 MUSICDIR=/mnt/sdb/audio
+LISTFILE=~/audiolist.txt
+
+function copyMP3s {
+    artist=`echo $1 | sed 's/\(.{1,25}\).*/\1/'`
+    album=`echo $2 | sed 's/\(.{1,25}\).*/\1/'`
+    for mp3 in `find ${MUSICDIR}/${1}/${2} -name \*.mp3`
+    do
+        mp3cp=`echo ${mp3}`
+    done
+}
 
 if [ `mount | grep ${HD} | wc -l` -gt 0 ]; then
     umount ${HD}
@@ -12,6 +23,13 @@ mkdosfs ${HD};
 mount ${HD} ${MOUNTPOINT};
 
 cd ${MUSICDIR};
+
+for entry in `cat ${LISTFILE}`
+do
+    if [ `echo ${entry} | grep mp3 | wc -l` -gt 0 ]; then
+    else
+    fi
+done
 
 mp3s=`find ./ -name \*.mp3 | sed 's/ /@/g' | sed 's/^\.\///' | sort -n`
 
@@ -44,16 +62,3 @@ do
     cp "${MUSICDIR}/${mp3File}" "${MOUNTPOINT}/${artistCP}/${albumCP}/${targetFile}";
 
 done
-
-# Playlists don't count unless they are in the root!
-#cd ${MOUNTPOINT};
-#
-#for dir in `find . -type d`
-#do
-#    mp3count=`ls ${dir} | grep -i mp3 | wc -l`
-#    m3ucount=`ls ${dir} | grep -i m3u | wc -l`
-#    if [ $mp3count -gt 0 -a $m3ucount -eq 0 ]; then
-#        albumName=`echo ${dir} | awk -F\/ '{print $NF}'`
-#        find ${dir} -name \*.mp3 -printf '%f\n' > ${dir}/playlist.m3u
-#    fi
-#done

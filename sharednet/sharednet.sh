@@ -8,7 +8,7 @@ DEBUG="false"
 SN_ADMINCLIENT="sn_adminclient_${HOSTNAME}"
 MYSQL_HOME="/var/db/mysql"
 SQL_USER="root"
-SQL_PASSWORD="cubem0nster"
+SQL_PASSWORD="cubemonster"
 
 TOMS_SERVER_GROUP="group"
 TOMS_SERVER_TIMEOUT="90"
