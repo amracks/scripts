@@ -52,15 +52,15 @@ function fileRSync() {
         syncpath=`echo ${syncentry} | awk -F: '{print $2}'`
         if [ ${synctype} == 'd' ]; then
             printf "\npull changes for ${syncpath} from  ${SYNCADDR}..\n"
-            rsync -avuz "${SYNCADDR}:/home/amrx/${syncpath}/" "/home/amrx/${syncpath}"
+            rsync -aquz "${SYNCADDR}:/home/amarks/${syncpath}/" "/home/amarks/${syncpath}"
             printf "\npush changes for ${syncpath} to ${SYNCADDR}..\n"
-            rsync -avuz "/home/amrx/${syncpath}/" "${SYNCADDR}:/home/amrx/${syncpath}"
+            rsync -aquz "/home/amarks/${syncpath}/" "${SYNCADDR}:/home/amarks/${syncpath}"
         fi
     done
 }
 
 locationSetup
-repoSync
+#repoSync
 fileRSync
 
 

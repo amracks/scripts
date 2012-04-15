@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IPTABLES="sudo /usr/sbin/iptables"
+IPTABLES="/sbin/iptables"
 #IFCONFIG="/sbin/ifconfig"
 
 LO="lo"
@@ -35,10 +35,18 @@ OUT_APPS="ftp-data
           netbios-dgm
           netbios-ssn
           microsoft-ds
-          pdl-datastream
 	      git
           nntp
-          xmpp-client"
+          xmpp-client
+		  rsync
+		  jetdirect"
+
+#These don't have entries in /etc/services
+OUT_PORTS=""
+OUT_PORTS="${OUT_PORTS} 5223" #Jabber
+OUT_PORTS="${OUT_PORTS} 8887" #Alternate HTTP Port
+OUT_PORTS="${OUT_PORTS} 465"  #Google SMTP
+OUT_PORTS="${OUT_PORTS} 5900" #VNC
 
 #Flush
 ${IPTABLES} -F
@@ -59,8 +67,8 @@ ${IPTABLES} -A OUTPUT -o ${LO} -s ${LADR} -d ${LADR} -j ACCEPT
 ${IPTABLES} -A INPUT -i ${LO} -s ${LADR} -d ${LADR} -j ACCEPT
 
 #Accept all input and output on the virtual interface.
-${IPTABLES} -A OUTPUT -o ${VIF} -s ${VADR} -d ${VNET}/${VMASK} -j ACCEPT
-${IPTABLES} -A INPUT -i ${VIF} -s ${VNET}/${VMASK} -d ${VADR} -j ACCEPT
+#${IPTABLES} -A OUTPUT -o ${VIF} -s ${VADR} -d ${VNET}/${VMASK} -j ACCEPT
+#${IPTABLES} -A INPUT -i ${VIF} -s ${VNET}/${VMASK} -d ${VADR} -j ACCEPT
 
 #Only accept output of traffic for specific application protocols
 for app in ${OUT_APPS}
@@ -74,6 +82,13 @@ do
     done
 done
 
+#Only accept output of traffic for specific ports
+for port in ${OUT_PORTS}
+do
+	${IPTABLES} -A OUTPUT -o ${EIF} -p tcp --dport ${port} -j ACCEPT
+	${IPTABLES} -A OUTPUT -o ${WIF} -p tcp --dport ${port} -j ACCEPT
+done
+
 #Accept ICMP out (for ping)
 ${IPTABLES} -A OUTPUT -o ${EIF} -p icmp -j ACCEPT
 ${IPTABLES} -A OUTPUT -o ${WIF} -p icmp -j ACCEPT
@@ -84,16 +99,11 @@ ${IPTABLES} -A OUTPUT -o ${EIF} -p udp --dport 33434:33654 -j ACCEPT
 ${IPTABLES} -A OUTPUT -o ${WIF} -p tcp --dport 33434:33654 -j ACCEPT
 ${IPTABLES} -A OUTPUT -o ${WIF} -p udp --dport 33434:33654 -j ACCEPT
 
-#Google likes to use 465 for outgoing smtp for some reason which is wrong according to /etc/services.
-#But, they are Google so there is no stopping them.
-#Allow outoing tcp to 465 to smtp.googlemail.com
-${IPTABLES} -A OUTPUT -o ${EIF} -p tcp --dport 465 -j ACCEPT
-${IPTABLES} -A OUTPUT -o ${WIF} -p tcp --dport 465 -j ACCEPT
-
 #Accept ssh in from 10.1.100.1 (diamondchief) for sshfs from my desktop on a private network.
 ${IPTABLES} -A INPUT -i ${EIF} -s 10.1.100.1 -d 10.1.100.52 -p tcp --dport 22 -j ACCEPT
+
 #Accept vnc in from 10.1.100.1 (diamondchief) for vnc on private network.
-${IPTABLES} -A INPUT -i ${EIF} -s 10.1.100.1 -d 10.1.100.52 -p tcp --dport 5900 -j ACCEPT
+#${IPTABLES} -A INPUT -i ${EIF} -s 10.1.100.1 -d 10.1.100.52 -p tcp --dport 5900 -j ACCEPT
 
 #Accept related,established traffic back into Ethernet Interface
 ${IPTABLES} -A INPUT -i ${EIF} -m state --state RELATED,ESTABLISHED -j ACCEPT

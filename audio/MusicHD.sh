@@ -2,7 +2,7 @@
 
 HD=/dev/sdc1
 MOUNTPOINT=/mnt/floppy
-AUTOMNTPT=/meda/usb1
+AUTOMNTPT=/media/usb1
 MUSICDIR=/mnt/sdb/audio
 LISTFILE=~/audiolist.txt
 

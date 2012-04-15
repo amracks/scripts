@@ -10,7 +10,7 @@ function image() {
     trd=`echo ${2} | awk -F\/ '{print $NF}'`
     if [ `grep $name $lf | wc -l` -lt 1 ]; then
         echo "get ${1}"
-        wget -q -O ${trd}-${name} ${1} &
+        wget -q -O ${trd}-${name} ${1} #&
         echo ${name} >> $lf
     else
         echo "skipping ${1}"

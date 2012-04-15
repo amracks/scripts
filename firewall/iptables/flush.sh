@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IPTABLES="sudo /usr/sbin/iptables"
+IPTABLES="/sbin/iptables"
 
 #Flush
 ${IPTABLES} -F

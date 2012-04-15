@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PASSDRVE=~/doc/passdrv
-LODEV=/dev/loop5
+LODEV=/dev/loop6
 MNTPOINT=~/.passdrv
 
 case ${1} in
