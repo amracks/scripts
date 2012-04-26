@@ -1,20 +1,22 @@
 #!/bin/bash
 
-IPTABLES="sudo /usr/sbin/iptables"
+IPTABLES="sudo /sbin/iptables"
 IFCONFIG="/sbin/ifconfig"
 
 LO="lo"
 LADR="127.0.0.1"
 
 EIF="eth0"
-EADDR=`${IFCONFIG} ${EIF} | grep addr | awk '{print $2}' | awk -F: '{print $2}'`
+EADDR=`${IFCONFIG} ${EIF} | grep 'inet ' | awk '{print $2}' | awk -F: '{print $2}'`
 EMASK="24"
-ENET="10.2.2.0" 
+ENET="128.49.130.0"
 
 IIF="eth1"
-IADDR=`${IFCONFIG} ${IIF} | grep addr | awk '{print $2}' | awk -F: '{print $2}'`
+IADDR=`${IFCONFIG} ${IIF} | grep 'inet ' | awk '{print $2}' | awk -F: '{print $2}'`
 IMASK="24"
 INET="10.1.100.0"
+
+#BLOCKED_IF="eth0"
 
 OUTBOUND_SVC_NAMES="ftp-data
                     ftp
@@ -35,19 +37,22 @@ OUTBOUND_SVC_NAMES="ftp-data
                     netbios-dgm
                     netbios-ssn
                     microsoft-ds
-                    pdl-datastream"
+                    pdl-datastream
+                    urd"
 
 INBOUND_SVC_NAMES="ssh
                    domain
                    http
+                   http-alt
                    netbios-ssn
                    microsoft-ds
                    ntp
-                   tftp"
+                   tftp
+                   postgresql"
 
 
-RESERVED_ADDRS="10.0.0.0/8 
-                172.16.0.0/16 
+#RESERVED_ADDRS="10.0.0.0/8 
+RESERVED_ADDRS="172.16.0.0/16 
                 172.17.0.0/16 
                 172.18.0.0/16 
                 172.19.0.0/16 
@@ -66,37 +71,21 @@ RESERVED_ADDRS="10.0.0.0/8
                 172.16.0.0/16 
                 192.168.0.0/16"
 
-NON_TEN_ADDRS="172.16.0.0/16 
-               172.17.0.0/16 
-               172.18.0.0/16 
-               172.19.0.0/16 
-               172.20.0.0/16 
-               172.21.0.0/16 
-               172.22.0.0/16 
-               172.23.0.0/16 
-               172.24.0.0/16 
-               172.25.0.0/16 
-               172.26.0.0/16 
-               172.27.0.0/16 
-               172.28.0.0/16 
-               172.29.0.0/16 
-               172.30.0.0/16 
-               172.31.0.0/16 
-               172.16.0.0/16"
-               #192.168.0.0/16"
 
-TRUSTED_IPS="128.49.65.102
-             128.49.130.153
-             128.49.67.51
-             128.49.65.101
-             128.49.67.37
-             128.49.65.161
-             128.49.5.26"  
+#TRUSTED_IPS="128.49.130.166"                  #CFT
+#TRUSTED_IPS="${TRUSTED_IPS} 128.49.201.55"   #Ralph1
+#TRUSTED_IPS="${TRUSTED_IPS} 128.49.65.103"   #Ralph2
+
+#TRUSTED_IPS="128.49.65.102
+#             128.49.130.153
+#             128.49.67.51
+#             128.49.65.101
+#             128.49.67.37
+#             128.49.65.161
+#             128.49.5.26"  
 
 NS="128.49.4.2 128.49.4.3"
 SMTP="128.49.4.2 128.49.4.3"
-
-NO_TRAFFIC_IF="eth0"
 
 #Flush
 ${IPTABLES} -F
@@ -112,12 +101,12 @@ ${IPTABLES} -t nat -P POSTROUTING ACCEPT
 ${IPTABLES} -t nat -P OUTPUT ACCEPT
 
 #Accept all input and output on the loopback interface.
-${IPTABLES} -A OUTPUT -o ${LO} -s ${LADR} -d ${LADR} -j ACCEPT
-${IPTABLES} -A INPUT -i ${LO} -s ${LADR} -d ${LADR} -j ACCEPT
+${IPTABLES} -A OUTPUT -o ${LO} -j ACCEPT
+${IPTABLES} -A INPUT -i ${LO} -j ACCEPT
 
-#DROP EVERYTHING IN or OUT of NO_TRAFFIC_IF
-${IPTABLES} -A INPUT -i ${NO_TRAFFIC_IF} -j DROP
-${IPTABLES} -A OUTPUT -o ${NO_TRAFFIC_IF} -j DROP
+#DROP EVERYTHING IN or OUT of BLOCKED_IF
+#${IPTABLES} -A INPUT -i ${BLOCKED_IF} -j DROP
+#${IPTABLES} -A OUTPUT -o ${BLOCKED_IF} -j DROP
 
 ##############################
 # OUTPUT ON EXTERNAL INTERFACE
@@ -144,7 +133,10 @@ done
 ${IPTABLES} -A OUTPUT -o ${EIF} -p icmp -j ACCEPT
 
 #Accept outgoing web traffic on external interface for myBiz
-${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -p tcp --dport 8007   -j ACCEPT
+${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -p tcp --dport 8007 -j ACCEPT
+
+#Accept outgoing RDP
+${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -p tcp --dport 3389 -j ACCEPT
 
 #Accept traceroute out
 ${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} ! -d ${EADDR} -p udp --dport 33434:33655 -j ACCEPT
@@ -162,7 +154,7 @@ do
     do
         port=`echo $entry |  awk -F\/ '{print $1}'`
         proto=`echo $entry | awk -F\/ '{print $2}'`
-        echo ${IPTABLES} -A INPUT -i ${IIF} -d ${IADDR} -p ${proto} --dport ${port} -j ACCEPT
+        ${IPTABLES} -A INPUT -i ${IIF} -d ${IADDR} -p ${proto} --dport ${port} -j ACCEPT
     done
 done
 
@@ -170,20 +162,20 @@ done
 ${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p icmp -j ACCEPT
 
 #Accept incomming ftp from the axis camera on port 21
-${IPTABLES} -A INPUT -i ${IIF} -s 10.1.100.151 -d ${IADDR} -p tcp --dport 21 -j ACCEPT
+#${IPTABLES} -A INPUT -i ${IIF} -s 10.1.100.151 -d ${IADDR} -p tcp --dport 21 -j ACCEPT
 
 #Accept incomming unreal tournament connections on IIF
-${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p udp --dport 7777 -j ACCEPT
-${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p udp --dport 7778 -j ACCEPT
-${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p udp --dport 7779 -j ACCEPT
-${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p udp --dport 7780 -j ACCEPT
+#${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p udp --dport 7777 -j ACCEPT
+#${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p udp --dport 7778 -j ACCEPT
+#${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p udp --dport 7779 -j ACCEPT
+#${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p udp --dport 7780 -j ACCEPT
 
 
 #Let Trusted IP's to connect to my web server on EIF
-#for src in ${TRUSTED_IPS}
-#do
-#    ${IPTABLES} -A INPUT -i ${EIF} -s ${src} -d ${EADDR} -p tcp --dport 80 -j ACCEPT
-#done
+for src in ${TRUSTED_IPS}
+do
+    ${IPTABLES} -A INPUT -i ${EIF} -s ${src} -d ${EADDR} -p tcp --dport 80 -j ACCEPT
+done
 
 #Accept related,established traffic back into external interface
 ${IPTABLES} -A INPUT -i ${EIF} -d ${EADDR} -m state --state RELATED,ESTABLISHED -j ACCEPT
@@ -196,6 +188,11 @@ ${IPTABLES} -A OUTPUT -o ${IIF} -s ${IADDR} -d ${INET}/${IMASK} -j ACCEPT
 
 #Accept related-established traffic back into internal interface
 ${IPTABLES} -A INPUT -i ${IIF} -d ${IADDR} -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+#Forward (SNAT) Mail connections from blacknas for the bugtracker.
+${IPTABLES} -A FORWARD -i ${IIF} -s 10.1.100.2 -d 128.49.4.2 -p tcp --dport 25 -j ACCEPT
+${IPTABLES} -A FORWARD -i ${EIF} -s 128.49.4.2 -d 10.1.100.2 -m state --state RELATED,ESTABLISHED -j ACCEPT
+${IPTABLES} -t nat -A POSTROUTING -s 10.1.100.2 -d 128.49.4.2 -p tcp --dport 25 -j SNAT --to-source ${EADDR}
 
 #LOG EVERYTHING ELSE
 #${IPTABLES} -A INPUT -i eth0 -j LOG
