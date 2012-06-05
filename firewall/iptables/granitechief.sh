@@ -16,6 +16,8 @@ IADDR=`${IFCONFIG} ${IIF} | grep 'inet ' | awk '{print $2}' | awk -F: '{print $2
 IMASK="24"
 INET="10.1.100.0"
 
+HBSSIP="10.1.100.186"
+
 #BLOCKED_IF="eth0"
 
 OUTBOUND_SVC_NAMES="ftp-data
@@ -87,6 +89,8 @@ RESERVED_ADDRS="172.16.0.0/16
 NS="128.49.4.2 128.49.4.3"
 SMTP="128.49.4.2 128.49.4.3"
 
+RICOH="128.49.104.114"
+
 #Flush
 ${IPTABLES} -F
 ${IPTABLES} -t nat -F
@@ -142,6 +146,9 @@ ${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -p tcp --dport 3389 -j ACCEPT
 ${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} ! -d ${EADDR} -p udp --dport 33434:33655 -j ACCEPT
 ${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} ! -d ${EADDR} -p tcp --dport 33434:33655 -j ACCEPT
 
+#Accept all output to Rioch
+${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -d ${RICOH} -p tcp -j ACCEPT
+
 
 ##############################
 # INPUT ON INTERNAL INTERFACE
@@ -189,10 +196,19 @@ ${IPTABLES} -A OUTPUT -o ${IIF} -s ${IADDR} -d ${INET}/${IMASK} -j ACCEPT
 #Accept related-established traffic back into internal interface
 ${IPTABLES} -A INPUT -i ${IIF} -d ${IADDR} -m state --state RELATED,ESTABLISHED -j ACCEPT
 
+#SNAT HBSS Client, Allow and SNAT tcp traffic on 80 and 9000 from the hbss vm server to the hbss server
+${IPTABLES} -A FORWARD -i ${IIF} -o ${EIF} -s ${HBSSIP} ! -d ${INET}/${IMASK} -j ACCEPT
+${IPTABLES} -A FORWARD -i ${EIF} -o ${IIF} ! -s ${INET}/${IMASK} -d ${HBSSIP} -j ACCEPT
+${IPTABLES} -t nat -A POSTROUTING -s ${HBSSIP} ! -d ${INET}/${IMASK} -j SNAT --to-source ${EADDR}
+
+#Forward (SNAT) HBSS server connections on port 591 to my hbss vm server
+#${IPTABLES} -t nat -A PREROUTING -p tcp --dport 591 -j LOG
+${IPTABLES} -t nat -A PREROUTING -i ${EIF} -p tcp --dport 591 -j DNAT --to-destination ${HBSSIP}
+
 #Forward (SNAT) Mail connections from blacknas for the bugtracker.
-${IPTABLES} -A FORWARD -i ${IIF} -s 10.1.100.2 -d 128.49.4.2 -p tcp --dport 25 -j ACCEPT
-${IPTABLES} -A FORWARD -i ${EIF} -s 128.49.4.2 -d 10.1.100.2 -m state --state RELATED,ESTABLISHED -j ACCEPT
-${IPTABLES} -t nat -A POSTROUTING -s 10.1.100.2 -d 128.49.4.2 -p tcp --dport 25 -j SNAT --to-source ${EADDR}
+#${IPTABLES} -A FORWARD -i ${IIF} -s 10.1.100.2 -d 128.49.4.2 -p tcp --dport 25 -j ACCEPT
+#${IPTABLES} -A FORWARD -i ${EIF} -s 128.49.4.2 -d 10.1.100.2 -m state --state RELATED,ESTABLISHED -j ACCEPT
+#${IPTABLES} -t nat -A POSTROUTING -s 10.1.100.2 -d 128.49.4.2 -p tcp --dport 25 -j SNAT --to-source ${EADDR}
 
 #LOG EVERYTHING ELSE
 #${IPTABLES} -A INPUT -i eth0 -j LOG
