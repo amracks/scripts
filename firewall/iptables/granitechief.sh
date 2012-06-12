@@ -16,7 +16,7 @@ IADDR=`${IFCONFIG} ${IIF} | grep 'inet ' | awk '{print $2}' | awk -F: '{print $2
 IMASK="24"
 INET="10.1.100.0"
 
-HBSSIP="10.1.100.186"
+HBSSIP="10.1.100.80"
 
 #BLOCKED_IF="eth0"
 
@@ -50,7 +50,9 @@ INBOUND_SVC_NAMES="ssh
                    microsoft-ds
                    ntp
                    tftp
-                   postgresql"
+                   postgresql
+                   sunrpc
+                   nfs"
 
 
 #RESERVED_ADDRS="10.0.0.0/8 
@@ -167,6 +169,12 @@ done
 
 #Accept ICMP traffic in the internal interface.
 ${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p icmp -j ACCEPT
+
+#Accept strange nfs ports
+${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p tcp --dport 32764 -j ACCEPT
+${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p tcp --dport 32765 -j ACCEPT
+${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p tcp --dport 32766 -j ACCEPT
+${IPTABLES} -A INPUT -i ${IIF} -s ${INET}/${IMASK} -d ${IADDR} -p tcp --dport 32767 -j ACCEPT
 
 #Accept incomming ftp from the axis camera on port 21
 #${IPTABLES} -A INPUT -i ${IIF} -s 10.1.100.151 -d ${IADDR} -p tcp --dport 21 -j ACCEPT
