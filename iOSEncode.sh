@@ -45,7 +45,7 @@ then
     exit
 fi
 
-for p in echo ${PASS}
+for p in ${PASS}
 do
     mencoder -profile "${TARGET}${p}" -nosub -o "${OUT_FILE}" "${IN_FILE}"
 done
