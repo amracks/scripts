@@ -52,7 +52,8 @@ INBOUND_SVC_NAMES="ssh
                    tftp
                    postgresql
                    sunrpc
-                   nfs"
+                   nfs
+                   rsync"
 
 
 #RESERVED_ADDRS="10.0.0.0/8 
@@ -191,6 +192,14 @@ for src in ${TRUSTED_IPS}
 do
     ${IPTABLES} -A INPUT -i ${EIF} -s ${src} -d ${EADDR} -p tcp --dport 80 -j ACCEPT
 done
+
+#Accept FTP traffic from hermit in on external interface
+${IPTABLES}  -A INPUT -i ${EIF} -d ${EADDR} -s 128.49.104.114 -j ACCEPT
+${IPTABLES}  -A INPUT -i ${EIF} -d ${EADDR} -s 128.49.5.26 -p tcp --dport 21 -j ACCEPT
+
+#Accept all output to hermit
+${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -d 128.49.104.114 -j ACCEPT
+${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -d 128.49.5.26 -j ACCEPT
 
 #Accept related,established traffic back into external interface
 ${IPTABLES} -A INPUT -i ${EIF} -d ${EADDR} -m state --state RELATED,ESTABLISHED -j ACCEPT

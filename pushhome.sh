@@ -3,11 +3,14 @@
 PUSHLIST=~/PushList.txt
 TEMPFILE=/tmp/PushList.txt
 
+OLDIFS=$IFS
+IFS=$(echo -en "\n\b")
+
 for f in `cat ${PUSHLIST}`
 do
     #Copy file from pushList
     echo Copying $f
-    scp -q $f amarks@ridge.amrx.net:~/video/720p;
+    scp -r -q "${f}" amarks@ridge.amrx.net:~/push;
 
     # Update PushList, remove first entry
     cp ${PUSHLIST} ${TEMPFILE}
@@ -19,3 +22,5 @@ do
         break;
     fi
 done
+
+IFS=$OLDIFS
