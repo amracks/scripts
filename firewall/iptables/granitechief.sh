@@ -145,6 +145,9 @@ ${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -p tcp --dport 8007 -j ACCEPT
 #Accept outgoing RDP
 ${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -p tcp --dport 3389 -j ACCEPT
 
+#Accept outgoing RDP
+${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} -p tcp --dport 902 -j ACCEPT
+
 #Accept traceroute out
 ${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} ! -d ${EADDR} -p udp --dport 33434:33655 -j ACCEPT
 ${IPTABLES} -A OUTPUT -o ${EIF} -s ${EADDR} ! -d ${EADDR} -p tcp --dport 33434:33655 -j ACCEPT
