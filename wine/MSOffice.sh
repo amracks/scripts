@@ -12,6 +12,9 @@ elif [ ${1} == "ppt" ]; then
 elif [ ${1} == "excel" ]; then
     WINEPREFIX=~/.wine32_office
 	wine "${OFFICE14}\EXCEL.EXE"
+elif [ ${1} == "outlook" ]; then
+    WINEPREFIX=~/.wine32_office
+	wine "${OFFICE14}\OUTLOOK.EXE"
 elif [ ${1} == "proj" ]; then
     WINEPREFIX=~/.wine32_project
 	wine "${OFFICE14}\WINPROJ.EXE"
