@@ -21,4 +21,13 @@ elif [ ${1} == "proj" ]; then
 elif [ ${1} == "visio" ]; then
     WINEPREFIX=~/.wine32_visio
 	wine "${OFFICE14}\VISIO.EXE"
+elif [ ${1} == "activate" ]; then
+    for pfx in .wine32_office .wine32_visio .wine32_project
+    do
+        WINEPREFIX=~/${pfx}
+        wine "wscript ${OFFICE14}\OSPP-ACT.VBS"
+        wine "wscript ${OFFICE14}\OSPP-ACT.VBS"
+        wine "wscript ${OFFICE14}\OSPP-ACT.VBS"
+        wine "wscript ${OFFICE14}\OSPP-ACT.VBS"
+    done
 fi
