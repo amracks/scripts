@@ -5,13 +5,13 @@ OFFICE14="C:\Program Files\Microsoft Office\Office14"
 
 if [ ${1} == "word" ]; then
     WINEPREFIX=~/.wine32_office
-	wine "${OFFICE14}\WINWORD.EXE"
+	wine "${OFFICE14}\WINWORD.EXE" "${2}"
 elif [ ${1} == "ppt" ]; then
     WINEPREFIX=~/.wine32_office
 	wine "${OFFICE14}\POWERPNT.EXE"
 elif [ ${1} == "excel" ]; then
     WINEPREFIX=~/.wine32_office
-	wine "${OFFICE14}\EXCEL.EXE"
+	wine "${OFFICE14}\EXCEL.EXE" "${2}"
 elif [ ${1} == "outlook" ]; then
     WINEPREFIX=~/.wine32_office
 	wine "${OFFICE14}\OUTLOOK.EXE"
