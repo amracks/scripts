@@ -2,5 +2,5 @@
 
 while true;
 do
-    ssh-agent dwm;
+    ssh-agent ~/bin/dwm;
 done
