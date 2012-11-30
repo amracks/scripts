@@ -2,4 +2,4 @@
 
 VERSION=1.7.2
 
-java -Xmx1024M -Xms1024M -jar ${VERSION}/lib/minecraft_server.jar nogui
+java -Xmx2048m -Xms1024m -jar ${MINECRAFT_HOME}/${VERSION}/lib/minecraft_server.jar nogui

@@ -13,7 +13,7 @@ then
 fi
 
 MCDIR=`pwd`
-VERSION=1.4.5
+VERSION=12w24a
 
 #export LD_LIBRARY_PATH=${MCDIR}/${VERSION}/linux
 
@@ -26,4 +26,4 @@ done
 
 export CLASSPATH
 
-${JAVA} -Xms1024m -Xmx2048m -Djava.library.path=${MCDIR}/${VERSION}/linux net.minecraft.client.Minecraft $1 $2
+${JAVA} -Xmx2048m -Djava.library.path=${MCDIR}/${VERSION}/osx net.minecraft.client.Minecraft $1 $2
