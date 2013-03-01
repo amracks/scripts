@@ -1,0 +1,30 @@
+#!/usr/bin/perl
+
+@files = <*.cac>;
+foreach $file (@files) {
+    #print $file . "\n";
+    @calist = `openssl pkcs7 -inform DES -in $file -print_certs`;
+    foreach (@calist) {
+    	if (/^subject=.*/) {
+	    s/^subject.*=//;
+	    s/ //g;
+	    s/$/.pem/;
+	    chomp;
+	    open (CAFILE, ">", $_);
+	}
+	elsif(/^issuer.*$/) {
+	}
+	elsif(/^[ \t]*$/) {
+	}
+	elsif(/^--*END CERTIFICATE--*$/) {
+	    print CAFILE $_;
+	    close CAFILE;
+	}
+	else {
+	    print CAFILE $_;
+	}
+        #print $_;
+    }
+}
+
+#subject=/C=US/O=U.S. Government/OU=ECA/CN=ECA Root CA

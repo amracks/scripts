@@ -8,7 +8,7 @@ if [ ${1} == "word" ]; then
 	wine "${OFFICE14}\WINWORD.EXE" "${2}"
 elif [ ${1} == "ppt" ]; then
     export WINEPREFIX=~/.wine32_office
-	wine "${OFFICE14}\POWERPNT.EXE"
+	wine "${OFFICE14}\POWERPNT.EXE" "${2}"
 elif [ ${1} == "excel" ]; then
     export WINEPREFIX=~/.wine32_office
 	wine "${OFFICE14}\EXCEL.EXE" "${2}"
