@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/usr/local/bin/bash
 
-WINEARCH=win32
-WINEPREFIX=~/.wine32_sparx
+export WINEARCH=win32
+export WINEPREFIX=~/.wine_ea
 
-wine "C:\Program Files\Sparx Systems/EA/EA.exe"
+wine "C:\Program Files\Sparx Systems\EA\EA.exe"

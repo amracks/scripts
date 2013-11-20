@@ -1,0 +1,57 @@
+ext_if = "em0"
+int_if = "em1"
+
+hbss_ip    = "10.1.100.80"
+jenkins_ip = "10.1.200.21"
+avm26_ip   = "128.49.5.20"
+mba_ip	   = "10.1.100.52"
+
+rdte_net = "128.49.0.0/16"
+int_net = "10.1.0.0/15"
+
+#int_svc_tcp_out = {}
+#int_svc_tcp_in  = {}
+
+ext_svc_tcp_out = "{ ftp ftp-data ssh telnet smtp bootps domain finger http nntp https http-alt ntp cvspserver imaps netbios-ns netbios-dgm netbios-ssn microsoft-ds smtps}"
+ext_svc_udp_out = "{ ftp-data ftp bootps domain ntp }"
+#ext_svc_tcp_in  = {}
+
+#NAT my laptop
+nat on $ext_if from $mba_ip to ! $int_net -> $ext_if
+
+#NAT hbss_ip ports 80 and 9000
+nat on $ext_if from $hbss_ip to $rdte_net -> $ext_if
+#nat on $ext_if from $jenkins_ip to $avm26_ip -> $ext_if
+nat on $ext_if from $jenkins_ip to ! $int_net -> $ext_if
+#nat on $int_if proto tcp from $hbss_ip to $rdte_net port 80 -> $ext_if
+#nat on $int_if proto tcp from $hbss_ip to $rdte_net port 9000 -> $ext_if
+
+nat-anchor "ftp-proxy/*"
+rdr-anchor "ftp-proxy/*"
+rdr pass proto tcp from any to any port ftp -> 127.0.0.1 port 8021
+
+#Redirect 591 and 22 to hbss_ip
+rdr on $ext_if proto tcp from any to ($ext_if) port 22 -> $hbss_ip port 22
+rdr on $ext_if proto tcp from any to $ext_if port 591 -> $hbss_ip port 591
+
+block in all
+
+block out on $ext_if from $int_net to ! $int_net
+
+pass on lo0 all keep state
+
+#Outgoing tcp/udp traffic on internal interface
+pass out on $int_if all keep state
+
+#Outgoing tcp/udp traffic on external interface
+pass out on $ext_if proto tcp from $ext_if to any port $ext_svc_tcp_out keep state
+pass out on $ext_if proto udp from $ext_if to any port $ext_svc_udp_out keep state
+
+#Incomming traffic on internal interface
+pass in on $int_if from any to any keep state
+
+#Allow connections to 22 and 591 (forwarded to HBSS machine)
+pass in on $ext_if proto tcp from any to any port 22 keep state
+pass in on $ext_if proto tcp from any to any port 591 keep state
+
+anchor "ftp-proxy/*"
