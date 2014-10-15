@@ -75,6 +75,10 @@ packages="\
  zsh\
  unrar\
  okular\
+ hs-hoogle\
+ hs-haskell-platform\
+ hs-yesod-bin\
+ android-tools-adb\
 "
 
 for p in $packages
