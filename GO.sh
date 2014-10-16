@@ -1,6 +1,7 @@
 #!/bin/sh
 
-REP_ETC="git@git.amrx.net:amarks/etc"
+REP_ETC="git@github.com:amracks/etc"
+REP_XMONAD="git@github.com:amracks/xmonad"
 
 #Clone the repo if not exists
 if [ -d "${HOME}/etc" ]
@@ -9,6 +10,16 @@ then
 else
   git clone ${REP_ETC} ${HOME}/etc
 fi
+
+#Clone the xmonad repo if not exists
+if [ -d "${HOME}/.xmonad" ]
+then
+  cd ${HOME}/.xmonad; git pull
+else
+  git clone ${REP_XMONAD} ${HOME}/.xmonad
+  ln -s ${HOME}/.xmonad/xmobarrc ${HOME}/.xmobarrc
+fi
+
 
 #Symlink Xresources
 if [ ! -f "${HOME}/.Xresources" ]
