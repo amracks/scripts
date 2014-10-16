@@ -49,3 +49,7 @@ if [ ! -L "${HOME}/.vim" ]
 then
   ln -s ${HOME}/etc/vim ${HOME}/.vim
 fi
+
+#configure git client
+git config --global user.name "Andrew Marks"
+git config --global user.email "amracks@gmail.com"
