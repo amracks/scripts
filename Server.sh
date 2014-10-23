@@ -40,6 +40,7 @@ packages="\
  zsh\
  postgresql93-server\
  postgresql93-client\
+ redis\
 "
 
 for p in $packages
