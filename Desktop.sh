@@ -79,11 +79,12 @@ packages="\
  hs-haskell-platform\
  hs-yesod-bin\
  android-tools-adb\
+ mesa-demos\
 "
 
 for p in $packages
 do
-  if [ `pkg info | grep $p | wc -l` -lt 1 ]
+  if [ `pkg info | grep "^$p-" | wc -l` -lt 1 ]
   then
     pkg install -y $p
   fi
