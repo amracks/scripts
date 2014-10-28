@@ -38,3 +38,8 @@ if [ ! -L "${HOME}/.vim" ]
 then
   ln -s ${HOME}/etc/vim ${HOME}/.vim
 fi
+
+if [ ! -L "${HOME}/.ghci" ]
+then
+  ln -s ${HOME}/etc/ghci ${HOME}/.ghci
+fi
