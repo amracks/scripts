@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#pkg install -y hs-haskell-platform
-
 packages="\
  ImageMagick\
  android-tools-adb\
