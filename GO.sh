@@ -2,6 +2,7 @@
 
 REP_ETC="git@github.com:amracks/etc"
 REP_XMONAD="git@github.com:amracks/xmonad"
+REP_VUNDLE="https://github.com/gmarik/Vundle.vim"
 
 #configure git client
 git config --global user.name "Andrew Marks"
@@ -49,9 +50,11 @@ then
   ln -s ${HOME}/etc/vimrc ${HOME}/.vimrc
 fi
 
-if [ ! -L "${HOME}/.vim" ]
+if [ ! -d "${HOME}/.vim" ]
 then
-  ln -s ${HOME}/etc/vim ${HOME}/.vim
+    mkdir -p ${HOME}/.vim/bundle
+    git clone ${REP_VUNDLE} ${HOME}/.vim/bundle/Vundle.vim
+    vim +PluginInstall +qall
 fi
 
 # Link Haskell ghci config
