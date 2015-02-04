@@ -62,3 +62,9 @@ if [ ! -L "${HOME}/.ghci" ]
 then
   ln -s ${HOME}/etc/ghci ${HOME}/.ghci
 fi
+
+# Setup Oh-My-Zsh
+if [ ! -d "${HOME}/.oh-my-zsh" ]
+then
+  curl -L http://install.ohmyz.sh | sh
+fi
