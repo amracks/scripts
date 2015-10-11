@@ -94,5 +94,3 @@ then
     ln -s ${HOME}/scripts/minecraft/Minecraft.sh ${HOME}/bin/minecraft
     ln -s ${HOME}/src/mcjwrapper/mcjava ${HOME}/bin/mcjava
 fi
-
-
