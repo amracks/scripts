@@ -26,9 +26,6 @@ packages="\
  gnucash\
  gputils\
  hplip\
- hs-cabal-install\
- hs-haskell-platform\
- hs-hoogle\
  hs-xmobar\
  hs-xmonad-contrib\
  hs-xmonad\
@@ -42,21 +39,14 @@ packages="\
  musicpc\
  musicpd\
  mutt\
- mysql55-client\
  nmap\
  nvidia-driver\
  nvidia-settings\
  okular\
- openjdk6\
  openjdk\
  pidgin\
- postgresql93-client\
- postgresql93-server\
- puppet\
  rexima\
  robotfindskitten\
- ruby20\
- ruby\
  rxvt-unicode\
  scala\
  slim-themes\
@@ -71,7 +61,6 @@ packages="\
  unrar\
  unzip\
  vim\
- virtualbox-ose\
  weechat\
  wget\
  wine-gecko\
@@ -82,34 +71,5 @@ packages="\
  xv\
  zsh\
 "
-services="\
- zfs\
- sshd\
- ntpd\
- postgresql\
- dbus\
- hald\
- musicpd\
- hcsecd\
- sdpd\
- bthidd\
-"
 
-#Install all packages
-for p in $packages
-do
-  if [ `pkg info | grep "^$p-" | wc -l` -lt 1 ]
-  then
-    pkg install -y $p
-  fi
-done
-
-#Start all services
-for s in $services
-do
-    if [ `grep "^${s}_enable=\"YES\"" /etc/rc.conf | wc -l` -lt 1 ]
-    then
-        echo "${s}_enable=\"YES\"" >> /etc/rc.conf
-        service ${s} start
-    fi
-done
+echo ${packages} | xargs pkg install -y
