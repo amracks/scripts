@@ -94,3 +94,14 @@ then
     ln -s ${HOME}/scripts/minecraft/Minecraft.sh ${HOME}/bin/minecraft
     ln -s ${HOME}/src/mcjwrapper/mcjava ${HOME}/bin/mcjava
 fi
+
+# Symlink .mutt and .muttrc
+if [ ! -d "${HOME}/.mutt" ]
+then
+    ln -s ${HOME}/etc/mutt ${HOME}/.mutt
+fi
+
+if [ ! -L "${HOME}/.muttrc" ]
+then
+    ln -s ${HOME}/etc/muttrc ${HOME}/.muttrc
+fi
